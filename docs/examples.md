@@ -23,6 +23,8 @@ From the `examples` folder the following will expose the metrics on port 8080.
 q ../q/exporter.q -p 8080
 ```
 
+On KDB-X the module-based equivalent is `q kdbx/exporter.q -p 8080` (see [`examples/kdbx`](../examples/kdbx/README.md)). Either exposes the same metrics on the same port, so the rest of this demo is unchanged.
+
 Next we initialize a Docker environment containing a single Prometheus instance and a Grafana dashboard. This accesses the kdb+ exporter from the local machine at port 8080. To use it for multiple targets or service discovery, refer to the Prometheus documentation.
 
 Initializing the Docker environment varies between Windows, macOS and Linux.

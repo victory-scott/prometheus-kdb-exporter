@@ -4,7 +4,7 @@
 
 
 
-This interface provides a method by which to expose metrics from a kdb+ process or multiple processes to Prometheus for monitoring. This is done via the script `q/exporter.q` which exposes kdb+ process metrics which can be consumed by Prometheus.
+This interface provides a method by which to expose metrics from a kdb+ process or multiple processes to Prometheus for monitoring. This is done via the script `q/exporter.q` which exposes kdb+ process metrics which can be consumed by Prometheus. The same code is also available as a KDB-X module, `kx.prometheus`.
 
 This interface is part of the [_Fusion for kdb+_](https://code.kx.com/q/interfaces#fusion/) project.
 
@@ -21,7 +21,28 @@ The repo includes [an example](examples) of this using Docker.
 
 ## Quick start
 
-Install the appropriate q scripts to `$QHOME`/`%QHOME%` using the `install.sh`/`install.bat` files
+### KDB-X (module)
+
+Install the module and load it with `use` (full details in [`docs/install.md`](docs/install.md))
+
+```bash
+mkdir -p ~/.kx/mod/kx && cp -r q ~/.kx/mod/kx/prometheus
+```
+
+```q
+q)prom:use`kx.prometheus
+q)prom.init[]
+```
+
+or run the supplied script, which does the same and exposes metrics on port 8080
+
+```bash
+q examples/kdbx/exporter.q -p 8080
+```
+
+### kdb+ (scripts)
+
+Install the q scripts to `$QHOME`/`%QHOME%` using the `install.sh`/`install.bat` files
 
 ```bash
 ## Linux/MacOS

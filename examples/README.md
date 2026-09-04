@@ -15,6 +15,8 @@ Start a q session locally on port 8080, running `exporter.q` from this folder vi
 q ../q/exporter.q -p 8080
 ```
 
+On KDB-X you can instead run the module-based version, `q kdbx/exporter.q -p 8080` (see [`kdbx/README.md`](kdbx/README.md)); the rest of this demo is the same.
+
 This will expose the metrics associated with this process on port 8080 for consumption by Prometheus.
 
 Initialize a Docker environment containing a pre-configured Prometheus and Grafana setup from within the `DockerCompose` folder via

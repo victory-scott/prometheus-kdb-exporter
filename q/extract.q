@@ -1,4 +1,11 @@
-\d .prom
+// loaded two ways with the same source:
+//   kdb+ script : \l extract.q          -> defines everything in .prom
+//   KDB-X module: use`kx.prometheus     -> init.q loads this into the module's private namespace
+if[`.~system"d";system"d .prom"]
+NS:system"d"
+qn:{[n]$[NS~`.;n;` sv NS,n]}
+METRICS:qn`metrics
+METRICVALS:qn`metricvals
 
 // utils
 wraplabels:{$[count x;"{",x,"}";""]}
@@ -11,13 +18,13 @@ metricvals:1#([name:`$()]metric:`$();params:();labelhdr:();val:())
 // define metric class
 newmetric:{[metric;metrictype;labelnames;help]
   hdr:enlist("# HELP ";"# TYPE "),'string[metric],/:" ",'(help;string metrictype);
-  metrics,:(metric;metrictype;raze labelnames;hdr);}
+  METRICS upsert(metric;metrictype;raze labelnames;hdr);}
 
 // create metric instance
 addmetric:{[metric;labelvals;params;startval]
   name:`$"|"sv enlist[string metric],labelvals;
   labelhdr:", "sv string[metrics[metric]`labelnames],'"=",'wrapstring each labelvals;
-  metricvals,:(name;metric;params;labelhdr;startval);
+  METRICVALS upsert(name;metric;params;labelhdr;startval);
   name}
 
 // fetch metric values (specific per metric type)
@@ -41,7 +48,7 @@ histogram:{[d]
 // extract metric info
 extractall:{[]
   aggmetrics:exec metric from metrics where metrictype in`summary`histogram;
-  metricvals,:select name,asc each val from metricvals where metric in aggmetrics;
+  METRICVALS upsert select name,asc each val from metricvals where metric in aggmetrics;
   "\n"sv raze extractmetric each 0!metrics}
 extractmetric:{[d]
   vals:extractmetricval[d`metrictype]each 0!select from metricvals where metric=d`metric;
@@ -55,7 +62,7 @@ extractmetricval:{[typ;d]
   ]}
 
 // update metric values
-updval:{[name;func;val].[`.prom.metricvals;(name;`val);func;val];}
+updval:{[name;func;val].[METRICVALS;(name;`val);func;val];}
 
 // logic run inside event handlers
 // null logic, to be overwritten
@@ -76,6 +83,11 @@ before_ws:{[msg]}
 after_ws :{[tmp;msg;res]}
 before_ts:{[dtm]}
 after_ts :{[tmp;dtm;res]}
+
+// hook accessors (module users cannot assign into the namespace directly)
+hooks:`on_poll`on_po`on_pc`on_wo`on_wc`before_pg`after_pg`before_ps`after_ps`before_ph`after_ph`before_pp`after_pp`before_ws`after_ws`before_ts`after_ts
+sethook:{[hook;f]if[not hook in hooks;'"unknown hook: ",string hook];qn[hook]set f;}
+gethook:{[hook]if[not hook in hooks;'"unknown hook: ",string hook];get qn hook}
 
 // event handlers
 po:{[f;hdl]on_po hdl;f hdl}

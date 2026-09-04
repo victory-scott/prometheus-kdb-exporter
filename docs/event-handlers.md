@@ -29,6 +29,8 @@ The functions outlined below can be modified to allow a user to monitor events o
 
 Once the relevant event handlers have been defined to update the metric values, initialize the library with a call to [`.prom.init`](reference.md#initialize-library)
 
+Each hook can be defined by assigning to `.prom.<name>` directly or with [`.prom.sethook`](reference.md#promsethook); the latter is required when the library is loaded as the KDB-X module `kx.prometheus`, and [`.prom.gethook`](reference.md#promgethook) returns the current definition so it can be wrapped rather than replaced.
+
 :warning: 
 Updating `.z.*` handlers after the call to `.prom.init` will overwrite the Prometheus logic. 
 Correct usage is to load all process logic before loading the Prometheus library. 
